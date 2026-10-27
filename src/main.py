@@ -9,6 +9,10 @@ random.seed(993)
 # Створення папки для графіків
 os.makedirs("graphics", exist_ok=True)
 
+#========================================================
+#Блок 1. Моделювання байєсівського оновлення ймовірностей
+#========================================================
+
 def run_block_1():
     print("=== БЛОК 1: Моделювання байєсівського оновлення ймовірностей ===")
     
@@ -69,5 +73,42 @@ def run_block_1():
     plt.close()
     print("-> Графік збережено в graphics/block1_bayesian_update.png\n")
 
+#========================================================
+#Блок 2,Варіант 2. Точність аналізатора коду SAST (Static Analysis Tool) 
+#========================================================
+
+def run_block_2():
+    print("=== БЛОК 2: Точність аналізатора коду SAST (Варіант 2) ===")
+    N = 100000
+    p_H1 = 0.05  # Дефект
+    p_H2 = 0.95  # Чистий код
+    p_A_H1 = 0.90 # True Positive
+    p_A_H2 = 0.02 # False Positive
+    
+    count_A = 0
+    count_H1_and_A = 0
+    
+    for _ in range(N):
+        r_H = random.random()
+        is_H1 = r_H < p_H1
+        p_A = p_A_H1 if is_H1 else p_A_H2
+        
+        if random.random() < p_A:
+            count_A += 1
+            if is_H1:
+                count_H1_and_A += 1
+                
+    W_A = count_A / N
+    W_H1_A = count_H1_and_A / count_A if count_A > 0 else 0
+    theor_P_A = p_H1*p_A_H1 + p_H2*p_A_H2
+    theor_P_H1_A = (p_H1 * p_A_H1) / theor_P_A
+    
+    print(f"Загальна ймовірність спрацьовування: W(A)={W_A:.4f} (Теорія: {theor_P_A:.4f})")
+    print(f"Точність (Precision): W(H1|A)={W_H1_A:.4f} (Теорія: {theor_P_H1_A:.4f})")
+    print(f"Абсолютна похибка W(H1|A): {abs(W_H1_A - theor_P_H1_A):.5f}\n")
+
+
+
 if __name__ == "__main__":
     run_block_1()
+    run_block_2()
