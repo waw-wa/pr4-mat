@@ -12,7 +12,6 @@ os.makedirs("graphics", exist_ok=True)
 #========================================================
 #Блок 1. Моделювання байєсівського оновлення ймовірностей
 #========================================================
-
 def run_block_1():
     print("=== БЛОК 1: Моделювання байєсівського оновлення ймовірностей ===")
     
@@ -76,7 +75,6 @@ def run_block_1():
 #========================================================
 #Блок 2,Варіант 2. Точність аналізатора коду SAST (Static Analysis Tool) 
 #========================================================
-
 def run_block_2():
     print("=== БЛОК 2: Точність аналізатора коду SAST (Варіант 2) ===")
     N = 100000
@@ -107,8 +105,48 @@ def run_block_2():
     print(f"Точність (Precision): W(H1|A)={W_H1_A:.4f} (Теорія: {theor_P_H1_A:.4f})")
     print(f"Абсолютна похибка W(H1|A): {abs(W_H1_A - theor_P_H1_A):.5f}\n")
 
-
+#========================================================
+#Блок 3. Наївний байєсівський класифікатор (Naive Bayes)
+#========================================================
+def run_block_3():
+    print("=== БЛОК 3: Наївний байєсівський класифікатор (Spam/Ham) ===")
+    N = 10000
+    p_spam, p_ham = 0.30, 0.70
+    p_w1_spam, p_w2_spam = 0.80, 0.60
+    p_w1_ham, p_w2_ham = 0.05, 0.10
+    
+    TP = TN = FP = FN = 0
+    
+    for _ in range(N):
+        is_spam_true = random.random() < p_spam
+        
+        # Генерація ознак
+        w1 = 1 if random.random() < (p_w1_spam if is_spam_true else p_w1_ham) else 0
+        w2 = 1 if random.random() < (p_w2_spam if is_spam_true else p_w2_ham) else 0
+        
+        # Розрахунок MAP
+        spam_score = p_spam * (p_w1_spam if w1 else 1-p_w1_spam) * (p_w2_spam if w2 else 1-p_w2_spam)
+        ham_score = p_ham * (p_w1_ham if w1 else 1-p_w1_ham) * (p_w2_ham if w2 else 1-p_w2_ham)
+        
+        pred_spam = spam_score > ham_score
+        
+        if is_spam_true and pred_spam: TP += 1
+        elif not is_spam_true and not pred_spam: TN += 1
+        elif not is_spam_true and pred_spam: FP += 1
+        elif is_spam_true and not pred_spam: FN += 1
+        
+    accuracy = (TP + TN) / (TP + TN + FP + FN)
+    precision = TP / (TP + FP) if (TP + FP) > 0 else 0
+    recall = TP / (TP + FN) if (TP + FN) > 0 else 0
+    f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0
+    
+    print(f"Confusion Matrix: TP={TP}, FP={FP}, TN={TN}, FN={FN}")
+    print(f"Accuracy:  {accuracy:.4f}")
+    print(f"Precision: {precision:.4f}")
+    print(f"Recall:    {recall:.4f}")
+    print(f"F1-score:  {f1:.4f}\n")
 
 if __name__ == "__main__":
     run_block_1()
     run_block_2()
+    run_block_3()
